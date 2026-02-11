@@ -6,6 +6,7 @@ CREATE TABLE `item` (
   `item_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '物品ID',
   `item_code` varchar(20) DEFAULT '' COMMENT '物品编码',
   `name` varchar(100) DEFAULT '' COMMENT '物品名称',
+  `item_type` char(1) DEFAULT '0' COMMENT '物品种类（0=实体物品,1=虚拟物品）',
   `image_path` varchar(500) DEFAULT NULL COMMENT '图片路径',
   `purchase_price` decimal(10,2) DEFAULT NULL COMMENT '购买价格',
   `purchase_time` datetime DEFAULT NULL COMMENT '购买时间',
@@ -26,5 +27,5 @@ CREATE TABLE `item` (
 -- ----------------------------
 -- Records of item
 -- ----------------------------
-INSERT INTO `item` VALUES (1, 'MH202602110001', '测试物品1', '/profile/upload/item_images/test1.jpg', 100.00, '2026-02-11 10:00:00', 150.00, '2026-02-11 15:00:00', 50.00, 50.00, '0', 'admin', NOW(), 'admin', NOW(), '这是一个测试物品');
-INSERT INTO `item` VALUES (2, 'MH202602110002', '测试物品2', '/profile/upload/item_images/test2.jpg', 200.00, '2026-02-11 11:00:00', 180.00, '2026-02-11 16:00:00', -20.00, -20.00, '0', 'admin', NOW(), 'admin', NOW(), '这是另一个测试物品');
+INSERT INTO `item` VALUES (1, 'MH202602110001', '测试实体物品', '0', '/profile/upload/item_images/test1.jpg', 100.00, '2026-02-11 10:00:00', 150.00, '2026-02-11 15:00:00', 50.00, 50.00, '0', 'admin', NOW(), 'admin', NOW(), '这是一个实体物品');
+INSERT INTO `item` VALUES (2, 'MH202602110002', '测试虚拟物品', '1', '/profile/upload/item_images/test2.jpg', 200.00, '2026-02-11 11:00:00', 180.00, '2026-02-11 16:00:00', -20.00, -20.00, '0', 'admin', NOW(), 'admin', NOW(), '这是一个虚拟物品');

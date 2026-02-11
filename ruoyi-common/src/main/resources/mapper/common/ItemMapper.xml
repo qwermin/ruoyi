@@ -8,6 +8,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="itemId"    column="item_id"    />
         <result property="itemCode"  column="item_code"  />
         <result property="name"      column="name"       />
+        <result property="itemType"  column="item_type"  />
         <result property="imagePath" column="image_path" />
         <result property="purchasePrice" column="purchase_price" />
         <result property="purchaseTime" column="purchase_time" />
@@ -24,7 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectItemVo">
-        select item_id, item_code, name, image_path, purchase_price, purchase_time, sell_price, sell_time, price_difference, profit_loss, del_flag, create_by, create_time, update_by, update_time, remark
+        select item_id, item_code, name, item_type, image_path, purchase_price, purchase_time, sell_price, sell_time, price_difference, profit_loss, del_flag, create_by, create_time, update_by, update_time, remark
         from item
     </sql>
 
@@ -47,8 +48,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="itemCode != null  and itemCode != ''">
                 AND item_code = #{itemCode}
             </if>
+            <if test="itemType != null  and itemType != ''">
+                AND item_type = #{itemType}
+            </if>
             <if test="imagePath != null  and imagePath != ''">
                 AND image_path like concat('%', #{imagePath}, '%')
+            </if>
+            <if test="purchaseTimeBegin != null and purchaseTimeBegin != ''">
+                AND DATE(purchase_time) &gt;= DATE(#{purchaseTimeBegin})
+            </if>
+            <if test="purchaseTimeEnd != null and purchaseTimeEnd != ''">
+                AND DATE(purchase_time) &lt;= DATE(#{purchaseTimeEnd})
+            </if>
+            <if test="sellTimeBegin != null and sellTimeBegin != ''">
+                AND DATE(sell_time) &gt;= DATE(#{sellTimeBegin})
+            </if>
+            <if test="sellTimeEnd != null and sellTimeEnd != ''">
+                AND DATE(sell_time) &lt;= DATE(#{sellTimeEnd})
             </if>
             AND del_flag != '2'
         </where>
@@ -58,6 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into item(
             item_code,
             name,
+            item_type,
             image_path,
             purchase_price,
             purchase_time,
@@ -74,6 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         )values(
             #{itemCode},
             #{name},
+            #{itemType},
             #{imagePath},
             #{purchasePrice},
             #{purchaseTime},
@@ -98,6 +116,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="name != null and name != ''">
                 name = #{name},
+            </if>
+            <if test="itemType != null and itemType != ''">
+                item_type = #{itemType},
             </if>
             <if test="imagePath != null and imagePath != ''">
                 image_path = #{imagePath},

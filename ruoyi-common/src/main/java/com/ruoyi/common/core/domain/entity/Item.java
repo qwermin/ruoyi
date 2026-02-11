@@ -30,6 +30,10 @@ public class Item extends BaseEntity
     @Excel(name = "物品名称")
     private String name;
 
+    /** 物品类别 */
+    @Excel(name = "物品类别", readConverterExp = "0=实体物品,1=虚拟物品")
+    private String itemType;
+
     /** 图片路径 */
     @Excel(name = "图片路径")
     private String imagePath;
@@ -89,6 +93,16 @@ public class Item extends BaseEntity
     public void setName(String name)
     {
         this.name = name;
+    }
+
+    public String getItemType()
+    {
+        return itemType;
+    }
+
+    public void setItemType(String itemType)
+    {
+        this.itemType = itemType;
     }
 
     public String getImagePath()
@@ -171,12 +185,65 @@ public class Item extends BaseEntity
         this.delFlag = delFlag;
     }
 
+    // 购买时间范围（开始）
+    private String purchaseTimeBegin;
+
+    // 购买时间范围（结束）
+    private String purchaseTimeEnd;
+
+    // 售出时间范围（开始）
+    private String sellTimeBegin;
+
+    // 售出时间范围（结束）
+    private String sellTimeEnd;
+
+    public String getPurchaseTimeBegin()
+    {
+        return purchaseTimeBegin;
+    }
+
+    public void setPurchaseTimeBegin(String purchaseTimeBegin)
+    {
+        this.purchaseTimeBegin = purchaseTimeBegin;
+    }
+
+    public String getPurchaseTimeEnd()
+    {
+        return purchaseTimeEnd;
+    }
+
+    public void setPurchaseTimeEnd(String purchaseTimeEnd)
+    {
+        this.purchaseTimeEnd = purchaseTimeEnd;
+    }
+
+    public String getSellTimeBegin()
+    {
+        return sellTimeBegin;
+    }
+
+    public void setSellTimeBegin(String sellTimeBegin)
+    {
+        this.sellTimeBegin = sellTimeBegin;
+    }
+
+    public String getSellTimeEnd()
+    {
+        return sellTimeEnd;
+    }
+
+    public void setSellTimeEnd(String sellTimeEnd)
+    {
+        this.sellTimeEnd = sellTimeEnd;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("itemId", getItemId())
             .append("itemCode", getItemCode())
             .append("name", getName())
+            .append("itemType", getItemType())
             .append("imagePath", getImagePath())
             .append("purchasePrice", getPurchasePrice())
             .append("purchaseTime", getPurchaseTime())
@@ -190,6 +257,10 @@ public class Item extends BaseEntity
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
             .append("remark", getRemark())
+            .append("purchaseTimeBegin", getPurchaseTimeBegin())
+            .append("purchaseTimeEnd", getPurchaseTimeEnd())
+            .append("sellTimeBegin", getSellTimeBegin())
+            .append("sellTimeEnd", getSellTimeEnd())
             .toString();
     }
 }

@@ -10,6 +10,34 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="物品种类" prop="itemType">
+        <el-select v-model="queryParams.itemType" placeholder="请选择物品种类" clearable style="width: 240px" @change="handleQuery">
+          <el-option label="实体物品" value="0" />
+          <el-option label="虚拟物品" value="1" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="购买时间" @change="handleQuery">
+        <el-date-picker
+          v-model="dateRangePurchase"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
+      <el-form-item label="售出时间" @change="handleQuery">
+        <el-date-picker
+          v-model="dateRangeSell"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -54,35 +82,50 @@
 
     <el-table v-loading="loading" :data="itemList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" align="center" />
-      <el-table-column label="物品编码" align="center" prop="itemCode" :show-overflow-tooltip="true" />
-      <el-table-column label="物品名称" align="center" prop="name" :show-overflow-tooltip="true" />
-      <el-table-column label="图片" align="center" width="120">
+      <el-table-column label="物品编码" align="center" prop="itemCode" v-if="columns[0].visible" :show-overflow-tooltip="true" />
+      <el-table-column label="物品名称" align="center" prop="name" v-if="columns[1].visible" :show-overflow-tooltip="true" />
+      <el-table-column label="物品种类" align="center" prop="itemType" v-if="columns[2].visible">
         <template slot-scope="scope">
-          <img v-if="scope.row.imagePath" :src="getImageUrl(scope.row.imagePath)" class="image-preview" alt="物品图片" @click="previewImage(scope.row.imagePath)" />
-          <span v-else>暂无图片</span>
+          <el-tag :type="scope.row.itemType === '0' ? 'primary' : 'success'">
+            {{ scope.row.itemType === '0' ? '实体物品' : '虚拟物品' }}
+          </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="购买价格" align="center" prop="purchasePrice" :formatter="formatPrice" />
-      <el-table-column label="购买时间" align="center" prop="purchaseTime" width="160">
+      <el-table-column label="图片" align="center" width="120" v-if="columns[3].visible">
+        <template slot-scope="scope">
+          <div class="image-cell">
+            <img v-if="scope.row.imagePath" :src="getImageUrl(scope.row.imagePath)" class="image-preview" alt="物品图片" @click="previewImage(scope.row.imagePath)" />
+            <span v-else>暂无图片</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="购买价格" align="center" prop="purchasePrice" v-if="columns[4].visible" :formatter="formatPrice" />
+      <el-table-column label="购买时间" align="center" prop="purchaseTime" width="160" v-if="columns[5].visible">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.purchaseTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="售出价格" align="center" prop="sellPrice" :formatter="formatPrice" />
-      <el-table-column label="售出时间" align="center" prop="sellTime" width="160">
+      <el-table-column label="售出价格" align="center" prop="sellPrice" v-if="columns[6].visible" :formatter="formatPrice" />
+      <el-table-column label="售出时间" align="center" prop="sellTime" width="160" v-if="columns[7].visible">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.sellTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="差价" align="center" prop="priceDifference" :formatter="formatPrice" />
-      <el-table-column label="盈亏" align="center" prop="profitLoss" :formatter="formatPrice" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="160">
+      <el-table-column label="差价" align="center" prop="priceDifference" v-if="columns[8].visible" :formatter="formatPrice" />
+      <el-table-column label="盈亏" align="center" prop="profitLoss" v-if="columns[9].visible" :formatter="formatPrice" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="160" v-if="columns[10].visible">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" width="200" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-view"
+            @click="handleView(scope.row)"
+          >查看</el-button>
           <el-button
             size="mini"
             type="text"
@@ -121,6 +164,16 @@
           <el-col :span="12">
             <el-form-item label="物品名称" prop="name">
               <el-input v-model="form.name" placeholder="请输入物品名称" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="物品种类" prop="itemType">
+              <el-select v-model="form.itemType" placeholder="请选择物品种类" clearable style="width: 100%">
+                <el-option label="实体物品" value="0" />
+                <el-option label="虚拟物品" value="1" />
+              </el-select>
             </el-form-item>
           </el-col>
         </el-row>
@@ -198,6 +251,105 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 查看物品详情对话框 -->
+    <el-dialog :title="detailTitle" :visible.sync="detailOpen" width="800px" append-to-body>
+      <el-form ref="detailForm" :model="detailForm" label-width="100px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="物品编码:">
+              <span>{{ detailForm.itemCode }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="物品名称:">
+              <span>{{ detailForm.name }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="物品种类:">
+              <span>{{ detailForm.itemType === '0' ? '实体物品' : '虚拟物品' }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="物品图片:">
+              <img v-if="detailForm.imagePath" :src="getImageUrl(detailForm.imagePath)" class="image-preview-large" alt="物品图片" />
+              <span v-else>暂无图片</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="购买价格:">
+              <span>{{ formatPrice(null, null, detailForm.purchasePrice) }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="购买时间:">
+              <span>{{ parseTime(detailForm.purchaseTime) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="售出价格:">
+              <span>{{ formatPrice(null, null, detailForm.sellPrice) }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="售出时间:">
+              <span>{{ parseTime(detailForm.sellTime) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="差价:">
+              <span>{{ formatPrice(null, null, detailForm.priceDifference) }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="盈亏:">
+              <span>{{ formatPrice(null, null, detailForm.profitLoss) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="备注:">
+          <span>{{ detailForm.remark }}</span>
+        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="创建者:">
+              <span>{{ detailForm.createBy }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="创建时间:">
+              <span>{{ parseTime(detailForm.createTime) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="更新者:">
+              <span>{{ detailForm.updateBy }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="更新时间:">
+              <span>{{ parseTime(detailForm.updateTime) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="detailOpen = false">关 闭</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -227,10 +379,18 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 是否显示详情弹出层
+      detailOpen: false,
+      // 详情弹出层标题
+      detailTitle: "",
       // 图片上传URL
       uploadImgUrl: process.env.VUE_APP_BASE_API + "/common/upload",
       // 图片上传头部
       uploadHeaders: { Authorization: "Bearer " + getToken() },
+      // 购买时间范围
+      dateRangePurchase: [],
+      // 售出时间范围
+      dateRangeSell: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -241,17 +401,20 @@ export default {
       columns: [
         { key: 0, label: `物品编码`, visible: true },
         { key: 1, label: `物品名称`, visible: true },
-        { key: 2, label: `图片`, visible: true },
-        { key: 3, label: `购买价格`, visible: true },
-        { key: 4, label: `购买时间`, visible: true },
-        { key: 5, label: `售出价格`, visible: true },
-        { key: 6, label: `售出时间`, visible: true },
-        { key: 7, label: `差价`, visible: true },
-        { key: 8, label: `盈亏`, visible: true },
-        { key: 9, label: `创建时间`, visible: true }
+        { key: 2, label: `物品种类`, visible: true },
+        { key: 3, label: `图片`, visible: true },
+        { key: 4, label: `购买价格`, visible: true },
+        { key: 5, label: `购买时间`, visible: true },
+        { key: 6, label: `售出价格`, visible: true },
+        { key: 7, label: `售出时间`, visible: true },
+        { key: 8, label: `差价`, visible: true },
+        { key: 9, label: `盈亏`, visible: true },
+        { key: 10, label: `创建时间`, visible: true }
       ],
       // 表单参数
       form: {},
+      // 详情表单参数
+      detailForm: {},
       // 表单校验
       rules: {
         name: [
@@ -316,9 +479,34 @@ export default {
       return true;
     },
 
+    /** 查看物品详情 */
+    handleView(row) {
+      this.detailTitle = "物品详情";
+      this.detailForm = JSON.parse(JSON.stringify(row)); // Deep copy to avoid reference issues
+      this.detailOpen = true;
+    },
+
     /** 查询物品列表 */
     getList() {
       this.loading = true;
+      // 处理购买时间范围
+      if (this.dateRangePurchase && this.dateRangePurchase.length === 2) {
+        this.queryParams.purchaseTimeBegin = this.dateRangePurchase[0];
+        this.queryParams.purchaseTimeEnd = this.dateRangePurchase[1];
+      } else {
+        this.queryParams.purchaseTimeBegin = null;
+        this.queryParams.purchaseTimeEnd = null;
+      }
+
+      // 处理售出时间范围
+      if (this.dateRangeSell && this.dateRangeSell.length === 2) {
+        this.queryParams.sellTimeBegin = this.dateRangeSell[0];
+        this.queryParams.sellTimeEnd = this.dateRangeSell[1];
+      } else {
+        this.queryParams.sellTimeBegin = null;
+        this.queryParams.sellTimeEnd = null;
+      }
+
       listItem(this.queryParams).then(response => {
         this.itemList = response.rows;
         this.total = response.total;
@@ -336,6 +524,7 @@ export default {
         itemId: null,
         itemCode: null,
         name: null,
+        itemType: null,
         imagePath: null,
         purchasePrice: null,
         purchaseTime: null,
@@ -355,6 +544,8 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
+      this.dateRangePurchase = [];
+      this.dateRangeSell = [];
       this.handleQuery();
     },
     // 多选框选中数据
@@ -460,5 +651,34 @@ export default {
   font-size: 12px;
   color: #999;
   margin-top: 5px;
+}
+
+.image-preview-large {
+  max-width: 300px;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* 固定表格行高以防止布局抖动 */
+.el-table .el-table__row {
+  height: 80px;
+}
+
+.el-table td {
+  padding: 8px 0;
+}
+
+/* 确保图片单元格高度一致 */
+.image-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+}
+
+/* 固定操作列高度 */
+.el-table .el-table__fixed-right {
+  height: 80px !important;
 }
 </style>

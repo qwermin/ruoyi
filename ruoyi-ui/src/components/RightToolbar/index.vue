@@ -18,7 +18,7 @@
             </el-dropdown-item>
             <div class="check-line"></div>
             <template v-for="(item, key) in columns">
-              <el-dropdown-item :key="key">
+              <el-dropdown-item v-key="key">
                 <el-checkbox v-model="item.visible" @change="checkboxChange($event, key)" :label="item.label" />
               </el-dropdown-item>
             </template>
