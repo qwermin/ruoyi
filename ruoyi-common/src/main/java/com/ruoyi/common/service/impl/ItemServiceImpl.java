@@ -126,20 +126,21 @@ public class ItemServiceImpl implements IItemService
         BigDecimal purchasePrice = item.getPurchasePrice();
         BigDecimal sellPrice = item.getSellPrice();
 
+        // 总是根据购买和售出价格计算差价
         if (purchasePrice != null && sellPrice != null) {
             // 计算差价：售出价格 - 购买价格
             BigDecimal priceDiff = sellPrice.subtract(purchasePrice);
             item.setPriceDifference(priceDiff);
-
-            // 盈亏等于差价
-            item.setProfitLoss(priceDiff);
         } else if (purchasePrice != null && sellPrice == null) {
-            // 如果只有购买价格没有售出价格，差价和盈亏为负数（表示投入）
+            // 如果只有购买价格没有售出价格，差价为负数（表示投入）
             item.setPriceDifference(BigDecimal.ZERO.subtract(purchasePrice));
-            item.setProfitLoss(BigDecimal.ZERO.subtract(purchasePrice));
         } else {
-            // 其他情况设为0
+            // 其他情况差价设为0
             item.setPriceDifference(BigDecimal.ZERO);
+        }
+
+        // 盈亏字段保持用户输入的值，不做自动计算覆盖
+        if (item.getProfitLoss() == null) {
             item.setProfitLoss(BigDecimal.ZERO);
         }
     }

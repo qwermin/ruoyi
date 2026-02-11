@@ -1,5 +1,33 @@
 <template>
   <div class="app-container">
+    <!-- 统计信息 -->
+    <el-row :gutter="20" class="summary-stats mb10" v-if="itemList && itemList.length > 0">
+      <el-col :span="6">
+        <div class="stat-card bg-purchase">
+          <div class="stat-title">购买总价格</div>
+          <div class="stat-value">¥{{ formatSummaryPrice(totalPurchasePrice) }}</div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="stat-card bg-sell">
+          <div class="stat-title">售出总价格</div>
+          <div class="stat-value">¥{{ formatSummaryPrice(totalSellPrice) }}</div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="stat-card" :class="totalProfitLoss >= 0 ? 'bg-profit' : 'bg-loss'">
+          <div class="stat-title">总盈亏</div>
+          <div class="stat-value">¥{{ formatSummaryPrice(totalProfitLoss) }}</div>
+        </div>
+      </el-col>
+      <el-col :span="6">
+        <div class="stat-card bg-count">
+          <div class="stat-title">物品总数</div>
+          <div class="stat-value">{{ totalItemCount }}</div>
+        </div>
+      </el-col>
+    </el-row>
+
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="物品名称" prop="name">
         <el-input
@@ -79,6 +107,8 @@
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
+
+
 
     <el-table v-loading="loading" :data="itemList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" align="center" />
@@ -415,6 +445,11 @@ export default {
       form: {},
       // 详情表单参数
       detailForm: {},
+      // 统计数据
+      totalPurchasePrice: 0,
+      totalSellPrice: 0,
+      totalProfitLoss: 0,
+      totalItemCount: 0,
       // 表单校验
       rules: {
         name: [
@@ -511,7 +546,55 @@ export default {
         this.itemList = response.rows;
         this.total = response.total;
         this.loading = false;
+
+        // 计算统计信息
+        this.calculateSummaryStats();
       });
+    },
+
+    /** 计算汇总统计信息 */
+    calculateSummaryStats() {
+      if (!this.itemList || this.itemList.length === 0) {
+        this.totalPurchasePrice = 0;
+        this.totalSellPrice = 0;
+        this.totalProfitLoss = 0;
+        this.totalItemCount = 0;
+        return;
+      }
+
+      let purchaseSum = 0;
+      let sellSum = 0;
+      let profitLossSum = 0;
+
+      this.itemList.forEach(item => {
+        // 累加购买价格
+        if (item.purchasePrice) {
+          purchaseSum += parseFloat(item.purchasePrice);
+        }
+
+        // 累加售出价格
+        if (item.sellPrice) {
+          sellSum += parseFloat(item.sellPrice);
+        }
+
+        // 累加盈亏
+        if (item.profitLoss) {
+          profitLossSum += parseFloat(item.profitLoss);
+        }
+      });
+
+      this.totalPurchasePrice = purchaseSum;
+      this.totalSellPrice = sellSum;
+      this.totalProfitLoss = profitLossSum;
+      this.totalItemCount = this.itemList.length;
+    },
+
+    /** 格式化汇总价格 */
+    formatSummaryPrice(value) {
+      if (value == null) {
+        return '0.00';
+      }
+      return parseFloat(value).toFixed(2);
     },
     // 取消按钮
     cancel() {
@@ -680,5 +763,58 @@ export default {
 /* 固定操作列高度 */
 .el-table .el-table__fixed-right {
   height: 80px !important;
+}
+
+/* 统计卡片样式 */
+.summary-stats {
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  padding: 20px;
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-title {
+  font-size: 14px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.bg-purchase {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+}
+
+.bg-sell {
+  background: linear-gradient(135deg, #00b894, #00a085);
+}
+
+.bg-profit {
+  background: linear-gradient(135deg, #fdcb6e, #e17055);
+}
+
+.bg-loss {
+  background: linear-gradient(135deg, #ff7675, #d63031);
+}
+
+.bg-count {
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+}
+
+.mb10 {
+  margin-bottom: 10px;
 }
 </style>
