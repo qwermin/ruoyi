@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.common.mapper.ItemMapper">
+
+    <resultMap type="Item" id="ItemResult">
+        <result property="itemId"    column="item_id"    />
+        <result property="itemCode"  column="item_code"  />
+        <result property="name"      column="name"       />
+        <result property="imagePath" column="image_path" />
+        <result property="purchasePrice" column="purchase_price" />
+        <result property="purchaseTime" column="purchase_time" />
+        <result property="sellPrice" column="sell_price" />
+        <result property="sellTime"  column="sell_time"  />
+        <result property="priceDifference" column="price_difference" />
+        <result property="profitLoss" column="profit_loss" />
+        <result property="delFlag"   column="del_flag"   />
+        <result property="createBy"  column="create_by"  />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy"  column="update_by"  />
+        <result property="updateTime" column="update_time" />
+        <result property="remark"    column="remark"     />
+    </resultMap>
+
+    <sql id="selectItemVo">
+        select item_id, item_code, name, image_path, purchase_price, purchase_time, sell_price, sell_time, price_difference, profit_loss, del_flag, create_by, create_time, update_by, update_time, remark
+        from item
+    </sql>
+
+    <select id="selectItemById" parameterType="Long" resultMap="ItemResult">
+        <include refid="selectItemVo"/>
+        where item_id = #{itemId} and del_flag != '2'
+    </select>
+
+    <select id="selectItemByCode" parameterType="String" resultMap="ItemResult">
+        <include refid="selectItemVo"/>
+        where item_code = #{itemCode} and del_flag != '2'
+    </select>
+
+    <select id="selectItemList" parameterType="Item" resultMap="ItemResult">
+        <include refid="selectItemVo"/>
+        <where>
+            <if test="name != null  and name != ''">
+                AND name like concat('%', #{name}, '%')
+            </if>
+            <if test="itemCode != null  and itemCode != ''">
+                AND item_code = #{itemCode}
+            </if>
+            <if test="imagePath != null  and imagePath != ''">
+                AND image_path like concat('%', #{imagePath}, '%')
+            </if>
+            AND del_flag != '2'
+        </where>
+    </select>
+
+    <insert id="insertItem" parameterType="Item" useGeneratedKeys="true" keyProperty="itemId">
+        insert into item(
+            item_code,
+            name,
+            image_path,
+            purchase_price,
+            purchase_time,
+            sell_price,
+            sell_time,
+            price_difference,
+            profit_loss,
+            del_flag,
+            create_by,
+            create_time,
+            update_by,
+            update_time,
+            remark
+        )values(
+            #{itemCode},
+            #{name},
+            #{imagePath},
+            #{purchasePrice},
+            #{purchaseTime},
+            #{sellPrice},
+            #{sellTime},
+            #{priceDifference},
+            #{profitLoss},
+            '0',
+            #{createBy},
+            sysdate(),
+            #{updateBy},
+            sysdate(),
+            #{remark}
+        )
+    </insert>
+
+    <update id="updateItem" parameterType="Item">
+        update item
+        <set>
+            <if test="itemCode != null and itemCode != ''">
+                item_code = #{itemCode},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="imagePath != null and imagePath != ''">
+                image_path = #{imagePath},
+            </if>
+            <if test="purchasePrice != null">
+                purchase_price = #{purchasePrice},
+            </if>
+            <if test="purchaseTime != null">
+                purchase_time = #{purchaseTime},
+            </if>
+            <if test="sellPrice != null">
+                sell_price = #{sellPrice},
+            </if>
+            <if test="sellTime != null">
+                sell_time = #{sellTime},
+            </if>
+            <if test="priceDifference != null">
+                price_difference = #{priceDifference},
+            </if>
+            <if test="profitLoss != null">
+                profit_loss = #{profitLoss},
+            </if>
+            <if test="updateBy != null and updateBy != ''">
+                update_by = #{updateBy},
+            </if>
+            update_time = sysdate(),
+            <if test="remark != null">
+                remark = #{remark}
+            </if>
+        </set>
+        where item_id = #{itemId}
+    </update>
+
+    <update id="deleteItemById" parameterType="Long">
+        update item set del_flag = '2' where item_id = #{itemId}
+    </update>
+
+    <update id="deleteItemByIds" parameterType="String">
+        update item set del_flag = '2' where item_id in
+        <foreach item="itemId" collection="array" open="(" separator="," close=")">
+            #{itemId}
+        </foreach>
+    </update>
+
+    <select id="getMaxSeqByDate" parameterType="String" resultType="Integer">
+        select MAX(CAST(RIGHT(item_code, 4) AS UNSIGNED)) as maxSeq
+        from item
+        where LEFT(item_code, 10) = #{dateStr}
+        and del_flag != '2'
+    </select>
+</mapper>
