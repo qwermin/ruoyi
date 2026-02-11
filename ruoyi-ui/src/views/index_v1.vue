@@ -47,7 +47,7 @@
           </div>
         </div>
       </el-col>
-    </el-col>
+    </el-row>
 
     <!-- 最近活动 -->
     <el-row :gutter="20" class="recent-section">

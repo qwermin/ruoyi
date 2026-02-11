@@ -2,12 +2,16 @@ package com.ruoyi.common.core.domain.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.annotation.Excel.ColumnType;
 import com.ruoyi.common.annotation.Excel.Type;
 import com.ruoyi.common.core.domain.BaseEntity;
+
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Digits;
 
 /**
  * 物品对象 item
@@ -40,26 +44,34 @@ public class Item extends BaseEntity
 
     /** 购买价格 */
     @Excel(name = "购买价格")
+    @Digits(integer=10, fraction=2, message = "购买价格整数位最多10位，小数位最多2位")
+    @DecimalMin(value = "0.00", message = "购买价格不能小于0")
     private BigDecimal purchasePrice;
 
     /** 购买时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "购买时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date purchaseTime;
 
     /** 售出价格 */
     @Excel(name = "售出价格")
+    @Digits(integer=10, fraction=2, message = "售出价格整数位最多10位，小数位最多2位")
+    @DecimalMin(value = "0.00", message = "售出价格不能小于0")
     private BigDecimal sellPrice;
 
     /** 售出时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "售出时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date sellTime;
 
     /** 差价 */
     @Excel(name = "差价")
+    @Digits(integer=10, fraction=2, message = "差价整数位最多10位，小数位最多2位")
     private BigDecimal priceDifference;
 
     /** 盈亏 */
     @Excel(name = "盈亏")
+    @Digits(integer=10, fraction=2, message = "盈亏整数位最多10位，小数位最多2位")
     private BigDecimal profitLoss;
 
     /** 删除标志（0代表存在 2代表删除） */
