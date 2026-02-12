@@ -1,13 +1,13 @@
-package com.ruoyi.common.service.impl;
+package com.ruoyi.business.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.common.utils.ItemCodeGenerator;
-import com.ruoyi.common.mapper.ItemMapper;
-import com.ruoyi.common.core.domain.entity.Item;
-import com.ruoyi.common.service.IItemService;
+import com.ruoyi.business.utils.ItemCodeGenerator;
+import com.ruoyi.business.mapper.ItemMapper;
+import com.ruoyi.business.domain.entity.Item;
+import com.ruoyi.business.service.IItemService;
 
 /**
  * 物品Service业务层处理

@@ -55,7 +55,7 @@
         <div class="recent-card">
           <div class="chart-header">
             <h3>最近添加的物品</h3>
-            <el-button type="primary" size="small" @click="goToPage('/common/item')">查看全部</el-button>
+            <el-button type="primary" size="small" @click="goToPage('/business/item')">查看全部</el-button>
           </div>
           <el-table :data="recentItems" style="width: 100%" :show-header="false">
             <el-table-column prop="itemCode" label="编码" width="150"></el-table-column>
@@ -105,7 +105,7 @@ export default {
           value: 0,
           type: 'primary',
           color: '#409EFF',
-          path: '/common/item'
+          path: '/business/item'
         },
         {
           icon: 'el-icon-wallet',
@@ -113,7 +113,7 @@ export default {
           value: '¥0.00',
           type: 'success',
           color: '#67C23A',
-          path: '/common/item'
+          path: '/business/item'
         },
         {
           icon: 'el-icon-money',
@@ -121,7 +121,7 @@ export default {
           value: '¥0.00',
           type: 'warning',
           color: '#E6A23C',
-          path: '/common/item'
+          path: '/business/item'
         },
         {
           icon: 'el-icon-trophy',
@@ -129,7 +129,7 @@ export default {
           value: '¥0.00',
           type: 'danger',
           color: '#F56C6C',
-          path: '/common/item'
+          path: '/business/item'
         }
       ],
       recentItems: [],

@@ -1,4 +1,4 @@
-package com.ruoyi.common.core.domain.entity;
+package com.ruoyi.business.domain.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
