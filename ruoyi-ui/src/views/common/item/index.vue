@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 统计信息 -->
-    <el-row :gutter="20" class="summary-stats mb10" v-if="itemList && itemList.length > 0">
+    <el-row :gutter="20" class="summary-stats mb10" v-if="showStats && itemList && itemList.length > 0">
       <el-col :span="6">
         <div class="stat-card bg-purchase">
           <div class="stat-title">购买总价格</div>
@@ -17,7 +17,7 @@
       <el-col :span="6">
         <div class="stat-card" :class="totalProfitLoss >= 0 ? 'bg-profit' : 'bg-loss'">
           <div class="stat-title">总盈亏</div>
-          <div class="stat-value">¥{{ formatSummaryPrice(totalProfitLoss) }}</div>
+          <div class="stat-value" :style="{ color: totalProfitLoss >= 0 ? '#fbaeb8' : '#67c26d' }">¥{{ formatSummaryPrice(totalProfitLoss) }}</div>
         </div>
       </el-col>
       <el-col :span="6">
@@ -105,6 +105,14 @@
           v-hasPermi="['common:item:remove']"
         >删除</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="info"
+          plain
+          size="mini"
+          @click="toggleStatsVisibility"
+        >{{ showStats ? '隐藏统计' : '显示统计' }}</el-button>
+      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
@@ -142,8 +150,15 @@
         </template>
       </el-table-column>
       <el-table-column label="差价" align="center" prop="priceDifference" v-if="columns[8].visible" :formatter="formatPrice" />
-      <el-table-column label="盈亏" align="center" prop="profitLoss" v-if="columns[9].visible" :formatter="formatPrice" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="160" v-if="columns[10].visible">
+      <el-table-column label="估价" align="center" prop="estimatedValue" v-if="columns[9].visible" :formatter="formatPrice" />
+      <el-table-column label="盈亏" align="center" prop="profitLoss" v-if="columns[10].visible">
+        <template slot-scope="scope">
+          <span :style="{ color: scope.row.profitLoss >= 0 ? '#fbaeb8' : '#67c26d' }">
+            {{ formatPrice(null, null, scope.row.profitLoss) }}
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" width="160" v-if="columns[11].visible">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -267,8 +282,15 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="估价">
+              <el-input-number v-model="form.estimatedValue" :precision="2" :step="0.01" placeholder="请输入估价" style="width: 100%" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
             <el-form-item label="盈亏">
-              <el-input-number v-model="form.profitLoss" :precision="2" :step="0.01" placeholder="盈亏自动计算" style="width: 100%" />
+              <el-input-number v-model="form.profitLoss" :precision="2" :step="0.01" placeholder="请输入盈亏" style="width: 100%" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -301,6 +323,11 @@
           <el-col :span="12">
             <el-form-item label="物品种类:">
               <span>{{ detailForm.itemType === '0' ? '实体物品' : '虚拟物品' }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="估价:">
+              <span>{{ formatPrice(null, null, detailForm.estimatedValue) }}</span>
             </el-form-item>
           </el-col>
         </el-row>
@@ -343,8 +370,17 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="估价:">
+              <span>{{ formatPrice(null, null, detailForm.estimatedValue) }}</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
             <el-form-item label="盈亏:">
-              <span>{{ formatPrice(null, null, detailForm.profitLoss) }}</span>
+              <span :style="{ color: detailForm.profitLoss >= 0 ? '#fbaeb8' : '#67c26d', fontWeight: 'bold' }">
+                {{ formatPrice(null, null, detailForm.profitLoss) }}
+              </span>
             </el-form-item>
           </el-col>
         </el-row>
@@ -434,17 +470,34 @@ export default {
         { key: 2, label: `物品种类`, visible: true },
         { key: 3, label: `图片`, visible: true },
         { key: 4, label: `购买价格`, visible: true },
-        { key: 5, label: `购买时间`, visible: true },
+        { key: 5, label: `购买时间`, visible: false },
         { key: 6, label: `售出价格`, visible: true },
-        { key: 7, label: `售出时间`, visible: true },
+        { key: 7, label: `售出时间`, visible: false },
         { key: 8, label: `差价`, visible: true },
-        { key: 9, label: `盈亏`, visible: true },
-        { key: 10, label: `创建时间`, visible: true }
+        { key: 9, label: `估价`, visible: true },
+        { key: 10, label: `盈亏`, visible: true },
+        { key: 11, label: `创建时间`, visible: false }
       ],
       // 表单参数
-      form: {},
+      form: {
+        itemId: null,
+        itemCode: null,
+        name: null,
+        itemType: null,
+        imagePath: null,
+        purchasePrice: null,
+        purchaseTime: null,
+        sellPrice: null,
+        sellTime: null,
+        priceDifference: null,
+        estimatedValue: null,
+        profitLoss: null,
+        remark: null
+      },
       // 详情表单参数
       detailForm: {},
+      // 是否显示统计信息，默认不显示
+      showStats: false,
       // 统计数据
       totalPurchasePrice: 0,
       totalSellPrice: 0,
@@ -596,6 +649,12 @@ export default {
       }
       return parseFloat(value).toFixed(2);
     },
+
+    /** 切切换统计信息显示 */
+    toggleStatsVisibility() {
+      this.showStats = !this.showStats;
+    },
+
     // 取消按钮
     cancel() {
       this.open = false;
@@ -614,6 +673,7 @@ export default {
         sellPrice: null,
         sellTime: null,
         priceDifference: null,
+        estimatedValue: null,
         profitLoss: null,
         remark: null
       };
