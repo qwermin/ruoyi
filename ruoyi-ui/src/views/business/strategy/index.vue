@@ -17,6 +17,21 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="攻略类型" prop="strategyType">
+        <el-select
+          v-model="queryParams.strategyType"
+          placeholder="请选择攻略类型"
+          clearable
+          @change="handleQuery"
+        >
+          <el-option
+            v-for="dict in dict.type.strategy_type"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -61,41 +76,46 @@
 
     <el-table v-loading="loading" :data="strategyList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="攻略ID" align="center" prop="strategyId" v-if="columns[0].visible" />
-      <el-table-column label="攻略编码" align="center" prop="strategyCode" v-if="columns[1].visible" />
-      <el-table-column label="攻略名称" align="center" prop="strategyName" v-if="columns[2].visible" />
-      <el-table-column label="攻略地址链接" align="center" prop="strategyUrl" v-if="columns[3].visible" :show-overflow-tooltip="true">
+      <el-table-column label="攻略ID" align="center" prop="strategyId" v-if="columns.strategyId.visible" />
+      <el-table-column label="攻略编码" align="center" prop="strategyCode" v-if="columns.strategyCode.visible" />
+      <el-table-column label="攻略名称" align="center" prop="strategyName" v-if="columns.strategyName.visible" />
+      <el-table-column label="攻略类型" align="center" prop="strategyType" v-if="columns.strategyType.visible">
+        <template slot-scope="scope">
+          <dict-tag :options="dict.type.strategy_type" :value="scope.row.strategyType"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="攻略地址链接" align="center" prop="strategyUrl" width="200" v-if="columns.strategyUrl.visible" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <el-link :href="scope.row.strategyUrl" target="_blank" type="primary" :underline="false">{{ scope.row.strategyUrl }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns[4].visible">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180" v-if="columns.createTime.visible">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" v-if="columns[5].visible">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" v-if="columns.action.visible">
         <template slot-scope="scope">
           <el-button
             size="mini"
             type="text"
             icon="el-icon-view"
             @click="handleJump(scope.row)"
-            v-hasPermi="['system:strategy:query']"
+            v-hasPermi="['business:strategy:query']"
           >跳转</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:strategy:edit']"
+            v-hasPermi="['business:strategy:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:strategy:remove']"
+            v-hasPermi="['business:strategy:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -111,12 +131,22 @@
 
     <!-- 添加或修改学习攻略对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="150px">
         <el-form-item label="攻略编码" prop="strategyCode">
-          <el-input v-model="form.strategyCode" placeholder="请输入攻略编码" />
+          <el-input v-model="form.strategyCode" placeholder="请输入攻略编码" readonly />
         </el-form-item>
         <el-form-item label="攻略名称" prop="strategyName">
           <el-input v-model="form.strategyName" placeholder="请输入攻略名称" />
+        </el-form-item>
+        <el-form-item label="攻略类型" prop="strategyType">
+          <el-select v-model="form.strategyType" placeholder="请选择攻略类型">
+            <el-option
+              v-for="dict in dict.type.strategy_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="攻略地址链接" prop="strategyUrl">
           <el-input v-model="form.strategyUrl" placeholder="请输入攻略地址链接" />
@@ -133,8 +163,10 @@
 <script>
 import { listStrategy, getStrategy, delStrategy, addStrategy, updateStrategy } from "@/api/system/strategy";
 
+
 export default {
   name: "StudyStrategy",
+  dicts: ['strategy_type'],
   data() {
     return {
       // 遮罩层
@@ -156,20 +188,22 @@ export default {
       // 是否显示弹出层
       open: false,
       // 列显隐信息
-      columns: [
-        { key: 0, label: `攻略ID`, visible: false },
-        { key: 1, label: `攻略编码`, visible: true },
-        { key: 2, label: `攻略名称`, visible: true },
-        { key: 3, label: `攻略地址链接`, visible: false }, // 默认隐藏链接列
-        { key: 4, label: `创建时间`, visible: true },
-        { key: 5, label: `操作`, visible: true }
-      ],
+      columns: {
+        strategyId: { label: `攻略ID`, visible: false },
+        strategyCode: { label: `攻略编码`, visible: true },
+        strategyName: { label: `攻略名称`, visible: true },
+        strategyType: { label: `攻略类型`, visible: true },
+        strategyUrl: { label: `攻略地址链接`, visible: false }, // 默认隐藏链接列
+        createTime: { label: `创建时间`, visible: true },
+        action: { label: `操作`, visible: true }
+      },
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
         strategyCode: null,
         strategyName: null,
+        strategyType: null,
         strategyUrl: null
       },
       // 表单参数
@@ -209,6 +243,7 @@ export default {
         strategyId: null,
         strategyCode: null,
         strategyName: null,
+        strategyType: null,
         strategyUrl: null,
         createTime: null,
         updateTime: null
@@ -223,6 +258,7 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
+      this.queryParams.strategyType = null;
       this.handleQuery();
     },
     // 多选框选中数据

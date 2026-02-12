@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="strategyCode"  column="strategy_code"  />
         <result property="strategyName"  column="strategy_name"  />
         <result property="strategyUrl"   column="strategy_url"   />
+        <result property="strategyType"  column="strategy_type"  />
         <result property="createBy"      column="create_by"      />
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"      column="update_by"      />
@@ -17,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectStudyStrategyVo">
-        select strategy_id, strategy_code, strategy_name, strategy_url, create_by, create_time, update_by, update_time, del_flag from study_strategy
+        select strategy_id, strategy_code, strategy_name, strategy_url, strategy_type, create_by, create_time, update_by, update_time, del_flag from study_strategy
     </sql>
 
     <select id="selectStudyStrategyByStrategyId" parameterType="Long" resultMap="StudyStrategyResult">
@@ -38,6 +39,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="strategyUrl != null  and strategyUrl != ''">
                 AND strategy_url like concat('%', #{strategyUrl}, '%')
             </if>
+            <if test="strategyType != null  and strategyType != ''">
+                AND strategy_type = #{strategyType}
+            </if>
         </where>
     </select>
 
@@ -46,6 +50,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             strategy_code,
             strategy_name,
             strategy_url,
+            strategy_type,
             create_by,
             create_time,
             update_by,
@@ -55,6 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{strategyCode},
             #{strategyName},
             #{strategyUrl},
+            #{strategyType},
             #{createBy},
             sysdate(),
             #{updateBy},
@@ -74,6 +80,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="strategyUrl != null and strategyUrl != ''">
                 strategy_url = #{strategyUrl},
+            </if>
+            <if test="strategyType != null and strategyType != ''">
+                strategy_type = #{strategyType},
             </if>
             <if test="updateBy != null and updateBy != ''">
                 update_by = #{updateBy},
@@ -98,6 +107,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select MAX(CAST(RIGHT(strategy_code, 4) AS UNSIGNED)) as maxSeq
         from study_strategy
         where LEFT(strategy_code, 10) = #{dateStr}
+        and del_flag = '0'
+    </select>
+
+    <select id="countByType" parameterType="String" resultType="int">
+        select COUNT(*) from study_strategy
+        where strategy_type = #{strategyType}
         and del_flag = '0'
     </select>
 </mapper>

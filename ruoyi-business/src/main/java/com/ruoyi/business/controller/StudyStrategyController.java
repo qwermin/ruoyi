@@ -28,7 +28,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * @date 2026-02-12
  */
 @RestController
-@RequestMapping("/system/strategy")
+@RequestMapping("/business/strategy")
 public class StudyStrategyController extends BaseController
 {
     @Autowired
@@ -50,7 +50,7 @@ public class StudyStrategyController extends BaseController
     /**
      * 获取学习攻略详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:strategy:query')")
+    @PreAuthorize("@ss.hasPermi('business:strategy:query')")
     @GetMapping(value = "/{strategyId}")
     public AjaxResult getInfo(@PathVariable("strategyId") Long strategyId)
     {
@@ -60,7 +60,7 @@ public class StudyStrategyController extends BaseController
     /**
      * 新增学习攻略
      */
-    @PreAuthorize("@ss.hasPermi('system:strategy:add')")
+    @PreAuthorize("@ss.hasPermi('business:strategy:add')")
     @Log(title = "学习攻略", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody StudyStrategy studyStrategy)
@@ -71,7 +71,7 @@ public class StudyStrategyController extends BaseController
     /**
      * 修改学习攻略
      */
-    @PreAuthorize("@ss.hasPermi('system:strategy:edit')")
+    @PreAuthorize("@ss.hasPermi('business:strategy:edit')")
     @Log(title = "学习攻略", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody StudyStrategy studyStrategy)
@@ -82,7 +82,7 @@ public class StudyStrategyController extends BaseController
     /**
      * 删除学习攻略
      */
-    @PreAuthorize("@ss.hasPermi('system:strategy:remove')")
+    @PreAuthorize("@ss.hasPermi('business:strategy:remove')")
     @Log(title = "学习攻略", businessType = BusinessType.DELETE)
     @DeleteMapping("/{strategyIds}")
     public AjaxResult remove(@PathVariable Long[] strategyIds)

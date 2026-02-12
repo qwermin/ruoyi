@@ -7,6 +7,7 @@ CREATE TABLE `study_strategy` (
   `strategy_code` varchar(64) NOT NULL COMMENT '攻略编码',
   `strategy_name` varchar(100) NOT NULL COMMENT '攻略名称',
   `strategy_url` varchar(500) DEFAULT '' COMMENT '攻略地址链接',
+  `strategy_type` varchar(20) DEFAULT '' COMMENT '攻略类型',
   `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
@@ -18,6 +19,6 @@ CREATE TABLE `study_strategy` (
 -- ----------------------------
 -- 初始化数据 (使用新编码格式: ST + YYYYMMDD + 4位数字)
 -- ----------------------------
-INSERT INTO `study_strategy` VALUES (1, 'ST202602120001', 'Vue3学习攻略', 'https://vuejs.org/guide/introduction.html', 'admin', NOW(), 'admin', NOW(), '0');
-INSERT INTO `study_strategy` VALUES (2, 'ST202602120002', 'Spring Boot学习攻略', 'https://spring.io/projects/spring-boot', 'admin', NOW(), 'admin', NOW(), '0');
-INSERT INTO `study_strategy` VALUES (3, 'ST202602120003', 'Element Plus学习攻略', 'https://element-plus.org/zh-CN/', 'admin', NOW(), 'admin', NOW(), '0');
+INSERT INTO `study_strategy` VALUES (1, 'ST202602120001', 'Vue3学习攻略', 'https://vuejs.org/guide/introduction.html', 'frontend', 'admin', NOW(), 'admin', NOW(), '0');
+INSERT INTO `study_strategy` VALUES (2, 'ST202602120002', 'Spring Boot学习攻略', 'https://spring.io/projects/spring-boot', 'backend', 'admin', NOW(), 'admin', NOW(), '0');
+INSERT INTO `study_strategy` VALUES (3, 'ST202602120003', 'Element Plus学习攻略', 'https://element-plus.org/zh-CN/', 'frontend', 'admin', NOW(), 'admin', NOW(), '0');

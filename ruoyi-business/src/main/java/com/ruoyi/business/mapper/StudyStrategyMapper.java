@@ -66,4 +66,12 @@ public interface StudyStrategyMapper
      * @return 最大序号
      */
     public Integer getMaxSeqByDate(String dateStr);
+
+    /**
+     * 根据类型统计数量
+     *
+     * @param strategyType 攻略类型
+     * @return 数量
+     */
+    public int countByType(String strategyType);
 }

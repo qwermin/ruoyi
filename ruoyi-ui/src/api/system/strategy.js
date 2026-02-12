@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询学习攻略列表
 export function listStrategy(query) {
   return request({
-    url: '/system/strategy/list',
+    url: '/business/strategy/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,7 @@ export function listStrategy(query) {
 // 查询学习攻略详细
 export function getStrategy(strategyId) {
   return request({
-    url: '/system/strategy/' + strategyId,
+    url: '/business/strategy/' + strategyId,
     method: 'get'
   })
 }
@@ -20,7 +20,7 @@ export function getStrategy(strategyId) {
 // 新增学习攻略
 export function addStrategy(data) {
   return request({
-    url: '/system/strategy',
+    url: '/business/strategy',
     method: 'post',
     data: data
   })
@@ -29,7 +29,7 @@ export function addStrategy(data) {
 // 修改学习攻略
 export function updateStrategy(data) {
   return request({
-    url: '/system/strategy',
+    url: '/business/strategy',
     method: 'put',
     data: data
   })
@@ -38,7 +38,7 @@ export function updateStrategy(data) {
 // 删除学习攻略
 export function delStrategy(strategyId) {
   return request({
-    url: '/system/strategy/' + strategyId,
+    url: '/business/strategy/' + strategyId,
     method: 'delete'
   })
 }
