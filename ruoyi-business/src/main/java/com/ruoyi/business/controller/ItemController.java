@@ -1,4 +1,4 @@
-package com.ruoyi.web.controller.common;
+package com.ruoyi.business.controller;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.core.domain.entity.Item;
+import com.ruoyi.business.domain.entity.Item;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.common.service.IItemService;
+import com.ruoyi.business.service.IItemService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 
 /**
@@ -28,7 +28,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
  * @date 2026-02-11
  */
 @RestController
-@RequestMapping("/common/item")
+@RequestMapping("/business/item")
 public class ItemController extends BaseController
 {
     @Autowired

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ruoyi.common.mapper.ItemMapper">
+<mapper namespace="com.ruoyi.business.mapper.ItemMapper">
 
     <resultMap type="Item" id="ItemResult">
         <result property="itemId"    column="item_id"    />
@@ -16,6 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="sellTime"  column="sell_time"  />
         <result property="priceDifference" column="price_difference" />
         <result property="profitLoss" column="profit_loss" />
+        <result property="estimatedValue" column="estimated_value" />
         <result property="delFlag"   column="del_flag"   />
         <result property="createBy"  column="create_by"  />
         <result property="createTime" column="create_time" />
@@ -25,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectItemVo">
-        select item_id, item_code, name, item_type, image_path, purchase_price, purchase_time, sell_price, sell_time, price_difference, profit_loss, del_flag, create_by, create_time, update_by, update_time, remark
+        select item_id, item_code, name, item_type, image_path, purchase_price, purchase_time, sell_price, sell_time, price_difference, profit_loss, estimated_value, del_flag, create_by, create_time, update_by, update_time, remark
         from item
     </sql>
 
@@ -82,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             sell_time,
             price_difference,
             profit_loss,
+            estimated_value,
             del_flag,
             create_by,
             create_time,
@@ -99,6 +101,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{sellTime},
             #{priceDifference},
             #{profitLoss},
+            #{estimatedValue},
             '0',
             #{createBy},
             sysdate(),
@@ -140,6 +143,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
             <if test="profitLoss != null">
                 profit_loss = #{profitLoss},
+            </if>
+            <if test="estimatedValue != null">
+                estimated_value = #{estimatedValue},
             </if>
             <if test="updateBy != null and updateBy != ''">
                 update_by = #{updateBy},

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.business.mapper.StudyStrategyMapper">
+
+    <resultMap type="StudyStrategy" id="StudyStrategyResult">
+        <result property="strategyId"    column="strategy_id"    />
+        <result property="strategyCode"  column="strategy_code"  />
+        <result property="strategyName"  column="strategy_name"  />
+        <result property="strategyUrl"   column="strategy_url"   />
+        <result property="strategyType"  column="strategy_type"  />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"       column="del_flag"       />
+    </resultMap>
+
+    <sql id="selectStudyStrategyVo">
+        select strategy_id, strategy_code, strategy_name, strategy_url, strategy_type, create_by, create_time, update_by, update_time, del_flag from study_strategy
+    </sql>
+
+    <select id="selectStudyStrategyByStrategyId" parameterType="Long" resultMap="StudyStrategyResult">
+        <include refid="selectStudyStrategyVo"/>
+        where strategy_id = #{strategyId} and del_flag = '0'
+    </select>
+
+    <select id="selectStudyStrategyList" parameterType="StudyStrategy" resultMap="StudyStrategyResult">
+        <include refid="selectStudyStrategyVo"/>
+        <where>
+            del_flag = '0'
+            <if test="strategyCode != null  and strategyCode != ''">
+                AND strategy_code like concat('%', #{strategyCode}, '%')
+            </if>
+            <if test="strategyName != null  and strategyName != ''">
+                AND strategy_name like concat('%', #{strategyName}, '%')
+            </if>
+            <if test="strategyUrl != null  and strategyUrl != ''">
+                AND strategy_url like concat('%', #{strategyUrl}, '%')
+            </if>
+            <if test="strategyType != null  and strategyType != ''">
+                AND strategy_type = #{strategyType}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertStudyStrategy" parameterType="StudyStrategy" useGeneratedKeys="true" keyProperty="strategyId">
+        insert into study_strategy(
+            strategy_code,
+            strategy_name,
+            strategy_url,
+            strategy_type,
+            create_by,
+            create_time,
+            update_by,
+            update_time,
+            del_flag
+        ) values (
+            #{strategyCode},
+            #{strategyName},
+            #{strategyUrl},
+            #{strategyType},
+            #{createBy},
+            sysdate(),
+            #{updateBy},
+            sysdate(),
+            '0'
+        )
+    </insert>
+
+    <update id="updateStudyStrategy" parameterType="StudyStrategy">
+        update study_strategy
+        <set>
+            <if test="strategyCode != null and strategyCode != ''">
+                strategy_code = #{strategyCode},
+            </if>
+            <if test="strategyName != null and strategyName != ''">
+                strategy_name = #{strategyName},
+            </if>
+            <if test="strategyUrl != null and strategyUrl != ''">
+                strategy_url = #{strategyUrl},
+            </if>
+            <if test="strategyType != null and strategyType != ''">
+                strategy_type = #{strategyType},
+            </if>
+            <if test="updateBy != null and updateBy != ''">
+                update_by = #{updateBy},
+            </if>
+            update_time = sysdate()
+        </set>
+        where strategy_id = #{strategyId}
+    </update>
+
+    <update id="deleteStudyStrategyByStrategyId" parameterType="Long">
+        update study_strategy set del_flag = '2' where strategy_id = #{strategyId}
+    </update>
+
+    <update id="deleteStudyStrategyByStrategyIds" parameterType="String">
+        update study_strategy set del_flag = '2' where strategy_id in
+        <foreach item="strategyId" collection="array" open="(" separator="," close=")">
+            #{strategyId}
+        </foreach>
+    </update>
+
+    <select id="getMaxSeqByDate" parameterType="String" resultType="Integer">
+        select MAX(CAST(RIGHT(strategy_code, 4) AS UNSIGNED)) as maxSeq
+        from study_strategy
+        where LEFT(strategy_code, 10) = #{dateStr}
+        and del_flag = '0'
+    </select>
+
+    <select id="countByType" parameterType="String" resultType="int">
+        select COUNT(*) from study_strategy
+        where strategy_type = #{strategyType}
+        and del_flag = '0'
+    </select>
+</mapper>

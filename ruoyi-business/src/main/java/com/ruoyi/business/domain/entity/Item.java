@@ -1,4 +1,4 @@
-package com.ruoyi.common.core.domain.entity;
+package com.ruoyi.business.domain.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -73,6 +73,10 @@ public class Item extends BaseEntity
     @Excel(name = "盈亏")
     @Digits(integer=10, fraction=2, message = "盈亏整数位最多10位，小数位最多2位")
     private BigDecimal profitLoss;
+
+    /** 估价 */
+    @Excel(name = "估价")
+    private BigDecimal estimatedValue;
 
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
@@ -185,6 +189,16 @@ public class Item extends BaseEntity
     public void setProfitLoss(BigDecimal profitLoss)
     {
         this.profitLoss = profitLoss;
+    }
+
+    public BigDecimal getEstimatedValue()
+    {
+        return estimatedValue;
+    }
+
+    public void setEstimatedValue(BigDecimal estimatedValue)
+    {
+        this.estimatedValue = estimatedValue;
     }
 
     public String getDelFlag()
