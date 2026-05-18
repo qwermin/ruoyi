@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.business.mapper.PriceMapper">
+
+    <resultMap type="Price" id="PriceResult">
+        <result property="priceId" column="price_id" />
+        <result property="itemName" column="item_name" />
+        <result property="serverName" column="server_name" />
+        <result property="itemType" column="item_type" />
+        <result property="itemAmount" column="item_amount" />
+        <result property="convertedAmount" column="converted_amount" />
+        <result property="delFlag" column="del_flag" />
+        <result property="createBy" column="create_by" />
+        <result property="createTime" column="create_time" />
+        <result property="updateBy" column="update_by" />
+        <result property="updateTime" column="update_time" />
+        <result property="remark" column="remark" />
+    </resultMap>
+
+    <sql id="selectPriceVo">
+        select price_id, item_name, server_name, item_type, item_amount, converted_amount, del_flag,
+               create_by, create_time, update_by, update_time, remark
+        from price
+    </sql>
+
+    <select id="selectPriceById" parameterType="Long" resultMap="PriceResult">
+        <include refid="selectPriceVo"/>
+        where price_id = #{priceId} and del_flag != '2'
+    </select>
+
+    <select id="selectPriceList" parameterType="Price" resultMap="PriceResult">
+        <include refid="selectPriceVo"/>
+        <where>
+            <if test="itemName != null and itemName != ''">
+                and item_name like concat('%', #{itemName}, '%')
+            </if>
+            <if test="serverName != null and serverName != ''">
+                and server_name like concat('%', #{serverName}, '%')
+            </if>
+            <if test="itemType != null and itemType != ''">
+                and item_type = #{itemType}
+            </if>
+            and del_flag != '2'
+        </where>
+    </select>
+
+    <insert id="insertPrice" parameterType="Price" useGeneratedKeys="true" keyProperty="priceId">
+        insert into price (
+            item_name, server_name, item_type, item_amount, converted_amount,
+            del_flag, create_by, create_time, update_by, update_time, remark
+        ) values (
+            #{itemName}, #{serverName}, #{itemType}, #{itemAmount}, #{convertedAmount},
+            '0', #{createBy}, sysdate(), #{updateBy}, sysdate(), #{remark}
+        )
+    </insert>
+
+    <update id="updatePrice" parameterType="Price">
+        update price
+        <set>
+            <if test="itemName != null and itemName != ''">item_name = #{itemName},</if>
+            <if test="serverName != null and serverName != ''">server_name = #{serverName},</if>
+            <if test="itemType != null and itemType != ''">item_type = #{itemType},</if>
+            <if test="itemAmount != null">item_amount = #{itemAmount},</if>
+            <if test="convertedAmount != null">converted_amount = #{convertedAmount},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="remark != null">remark = #{remark}</if>
+        </set>
+        where price_id = #{priceId}
+    </update>
+
+    <update id="deletePriceById" parameterType="Long">
+        update price set del_flag = '2' where price_id = #{priceId}
+    </update>
+
+    <update id="deletePriceByIds" parameterType="String">
+        update price set del_flag = '2' where price_id in
+        <foreach item="priceId" collection="array" open="(" separator="," close=")">
+            #{priceId}
+        </foreach>
+    </update>
+
+</mapper>
